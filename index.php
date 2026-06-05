@@ -2,7 +2,7 @@
 $pageTitle = "Mobile Fraud Prevention and Subscriber Security Guide Philippines";
 $metaDescription = "Learn practical strategies for mobile fraud prevention, subscriber security, account protection, and digital trust in the Philippines.";
 $canonicalUrl = "https://smartsimreg.ph/mobile-fraud-prevention-guide";
-$ogImage = "images/mobile-fraud-prevention-ph.jpg";
+$ogImage = "Mobile_security_and_fraud_prevention_in_Philippines.png";
 $publishDate = "2025-06-01";
 $modifiedDate = "2025-06-05";
 ?>
@@ -400,6 +400,13 @@ $modifiedDate = "2025-06-05";
       color: var(--gray-mid);
     }
     .toc-box li a:hover { color: var(--electric-bright); }
+    .toc-box li a.toc-active {
+      color: var(--electric-bright);
+      font-weight: 600;
+      padding-left: 6px;
+      border-left: 2px solid var(--electric);
+      transition: padding-left 0.2s;
+    }
 
     /* ── SECTIONS ── */
     section { margin-bottom: 2.8rem; }
@@ -823,7 +830,7 @@ $modifiedDate = "2025-06-05";
       </div>
     </div>
     <div class="hero-image-wrap">
-      <img src="images/mobile-fraud-prevention-ph.jpg"
+      <img src="Mobile_security_and_fraud_prevention_in_Philippines.png"
            alt="Mobile Fraud Prevention and Subscriber Security in the Philippines"
            width="600" height="340"
            loading="eager">
@@ -858,19 +865,10 @@ $modifiedDate = "2025-06-05";
 <div class="content-wrap">
   <main class="main-content" id="main-content" role="main">
 
-    <!-- Table of Contents -->
-    <nav class="toc-box" aria-label="Table of contents">
+    <!-- Table of Contents — built dynamically from h2 headings in #main-content -->
+    <nav class="toc-box" id="toc" aria-label="Table of contents">
       <h3>In This Guide</h3>
-      <ol>
-        <li><a href="#risks">Understanding Mobile Fraud Risks</a></li>
-        <li><a href="#threats">Common Subscriber Security Threats</a></li>
-        <li><a href="#how-fraudsters">How Fraudsters Target Mobile Users</a></li>
-        <li><a href="#verification">Identity Verification and Account Protection</a></li>
-        <li><a href="#protection">How Consumers Can Secure Their Mobile Accounts</a></li>
-        <li><a href="#scam-comms">Recognizing Scam Communications</a></li>
-        <li><a href="#future">The Future of Subscriber Security</a></li>
-        <li><a href="#faq">Frequently Asked Questions</a></li>
-      </ol>
+      <ol id="toc-list"></ol>
     </nav>
 
     <!-- Intro -->
@@ -1276,10 +1274,73 @@ $modifiedDate = "2025-06-05";
 </footer>
 
 <script>
-  // FAQ Accordion
+  // ── DYNAMIC TABLE OF CONTENTS ──
+  (function () {
+    const main    = document.getElementById('main-content');
+    const tocList = document.getElementById('toc-list');
+    if (!main || !tocList) return;
+
+    // Collect every h2 inside main content (skip any inside the TOC nav itself)
+    const headings = Array.from(main.querySelectorAll('section[id] > h2'));
+
+    headings.forEach((h2, idx) => {
+      // Ensure each heading has an id; use the parent section's id
+      const section = h2.closest('section[id]');
+      const id = section ? section.id : ('toc-heading-' + idx);
+
+      const li = document.createElement('li');
+      const a  = document.createElement('a');
+      a.href        = '#' + id;
+      a.textContent = h2.textContent;
+      a.setAttribute('data-toc-id', id);
+      li.appendChild(a);
+      tocList.appendChild(li);
+
+      // Smooth-scroll: prevent jump, use scrollIntoView
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.getElementById(id);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.replaceState(null, '', '#' + id);
+        }
+      });
+    });
+
+    // ── SCROLL SPY — highlight active TOC link ──
+    const tocLinks  = tocList.querySelectorAll('a[data-toc-id]');
+    const navOffset = 80; // sticky nav height
+
+    function getActiveId() {
+      let activeId = null;
+      headings.forEach(h2 => {
+        const section = h2.closest('section[id]');
+        if (!section) return;
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= navOffset + 10) activeId = section.id;
+      });
+      return activeId;
+    }
+
+    function updateToc() {
+      const active = getActiveId();
+      tocLinks.forEach(a => {
+        if (a.getAttribute('data-toc-id') === active) {
+          a.classList.add('toc-active');
+        } else {
+          a.classList.remove('toc-active');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateToc, { passive: true });
+    updateToc(); // run once on load
+  })();
+
+  // ── FAQ ACCORDION ──
   document.querySelectorAll('.faq-question').forEach(btn => {
     btn.addEventListener('click', function () {
-      const item = this.closest('.faq-item');
+      const item   = this.closest('.faq-item');
       const isOpen = item.classList.contains('open');
       document.querySelectorAll('.faq-item.open').forEach(el => {
         el.classList.remove('open');
@@ -1292,10 +1353,10 @@ $modifiedDate = "2025-06-05";
     });
   });
 
-  // Smooth nav highlight on scroll (lightweight)
-  const sections = document.querySelectorAll('section[id]');
+  // ── NAV LINK HIGHLIGHT ON SCROLL ──
   const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
-  const observer = new IntersectionObserver(entries => {
+  const navSections = document.querySelectorAll('section[id]');
+  const navObserver = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
         navLinks.forEach(a => {
@@ -1305,7 +1366,7 @@ $modifiedDate = "2025-06-05";
       }
     });
   }, { threshold: 0.4 });
-  sections.forEach(s => observer.observe(s));
+  navSections.forEach(s => navObserver.observe(s));
 </script>
 </body>
 </html>
