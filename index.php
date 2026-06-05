@@ -800,6 +800,7 @@ $modifiedDate = "2025-06-05";
       .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
     }
   </style>
+  <meta name="google-site-verification" content="QHvevO6Xr7GJnWaR3Va19TEznBPLJEB4jXONUhZvVxM" />
 </head>
 <body>
 
